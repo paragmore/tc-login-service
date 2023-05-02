@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <title>Login</title>
+</head>
+
+<body>
+    <div id="login-form-content">
+        <form id="my-form">
+            <label for="phone">Phone number:</label>
+            <input type="text" id="phone" name="phone" value=""><br><br>
+            <button type="submit">Generate OTP</button>
+        </form>
+    </div>
+
+</body>
+
+<script>
+    console.log('server')
+    const form = document.getElementById('my-form');
+    console.log(form)
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault(); // prevent default form submission behavior
+        const phone = document.getElementById('phone').value;
+        console.log(phone)
+
+        const response = await fetch('http://localhost:8000/auth/generateOtp', {
+            method: 'POST',
+            body:JSON.stringify({phone})
+        });
+
+        const data = await response.text();
+
+        const div = document.createElement('div');
+        div.innerHTML = data;
+        document.body.appendChild(div);
+        console.log('idharich', data)
+        // handle response data
+    });
+</script>
+
+</html>
