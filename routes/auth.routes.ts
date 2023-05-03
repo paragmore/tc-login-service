@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 import { AuthController } from "../controllers/auth.controller";
 import container from "../inversify.config";
 import { ApiHelper } from "../utils/ApiHelper";
-import { GenerateOTPRequestI } from "../types/types";
+import { GenerateOTPRequestI, VerifyOtpRequestI } from "../types/types";
 
 export default async (app: FastifyInstance) => {
   const authController = container.resolve<AuthController>(AuthController)
@@ -20,7 +20,7 @@ export default async (app: FastifyInstance) => {
     authController.generateOtp.bind(authController)
   );
 
-  ApiHelper.post<{}, {}, {}, {}>(
+  ApiHelper.post<VerifyOtpRequestI, {}, {}, {}>(
     app,
     "/verifyOtp",
     authController.verifyOtp.bind(authController)

@@ -1,12 +1,13 @@
 import { addMinutes } from "date-fns";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { OTPModel } from "../models/otp.model";
+import { AuthRepo } from "../repo/auth.repo";
 import { USER_TYPE } from "../types/types";
 import { ApiError } from "../utils/ApiHelper";
 
 @injectable()
 export class AuthService {
-  constructor() {}
+  constructor(@inject(AuthRepo) private authRepo: AuthRepo) {}
   getLoginPage() {
     return `<html>
     <head>
@@ -44,7 +45,7 @@ export class AuthService {
       const otp = await OTPModel.findOne({ phoneNumber: phoneNumber }).sort({
         createdAt: -1,
       });
-      console.log('otp', otp)
+      console.log("otp", otp);
       const newOtp = this.generateEasyOTP(4);
       if (!otp) {
         const otpDocument = new OTPModel({
@@ -57,9 +58,17 @@ export class AuthService {
         });
         await otpDocument.save();
       } else {
-        console.log(addMinutes(otp.updatedAt, 5).toUTCString(), new Date().toUTCString(), otp.updatedAt.toUTCString(), addMinutes(otp.updatedAt, 5) > new Date() )
+        console.log(
+          addMinutes(otp.updatedAt, 5).toUTCString(),
+          new Date().toUTCString(),
+          otp.updatedAt.toUTCString(),
+          addMinutes(otp.updatedAt, 5) > new Date()
+        );
         if (addMinutes(otp.updatedAt, 5) > new Date() && otp.attempts >= 3) {
-          return new ApiError('Too frequent calls, Please try again later', 400);
+          return new ApiError(
+            "Too frequent calls, Please try again later",
+            400
+          );
         }
         await OTPModel.updateOne(
           { _id: otp._id },
@@ -68,7 +77,30 @@ export class AuthService {
       }
     } catch (error) {
       console.log(error);
-      return new ApiError('Some error catched. Please try again.', 500)
+      return new ApiError("Some error catched. Please try again.", 500);
     }
+  }
+
+  async verifyOtp(
+    phoneNumber: string,
+    otp: string,
+    userType: USER_TYPE,
+    storeId: string | undefined
+  ) {
+    const storedOtp = await OTPModel.findOne({ phoneNumber }).sort({
+      createdAt: -1,
+    });
+
+    if (
+      storedOtp &&
+      storedOtp?.otp === otp &&
+      storedOtp.expiresAt > new Date()
+    ) {
+      if (userType === USER_TYPE.CUSTOMER && storeId) {
+        const customer = await this.authRepo.getOrCreateCustomerByPhone(phoneNumber, storeId);
+        return true;
+      }
+    }
+    return false;
   }
 }
