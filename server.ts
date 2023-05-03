@@ -46,9 +46,9 @@ const swaggerConfig = () => {
 };
 
 const fastifyStaticConfig = () => {
-    console.log(path.join(__dirname, 'public'))
+    console.log(path.join(__dirname, '../public'))
     return {
-        root: path.join(__dirname, 'public'),
+        root: path.join(__dirname, '../public'),
         prefix: '/public/', // specify a prefix for your static file URLs
       }
 }
