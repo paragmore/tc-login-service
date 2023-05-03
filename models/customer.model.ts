@@ -4,7 +4,6 @@ const customerSchema = new Schema({
   phoneNumber: {
     type: String,
     required: true,
-    unique: true,
   },
   name: {
     type: String,
@@ -30,4 +29,4 @@ const customerSchema = new Schema({
   },
 });
 
-export const OTPModel = mongoose.model("Customer", customerSchema);
+export const CustomerModel = mongoose.model("Customer", customerSchema);
