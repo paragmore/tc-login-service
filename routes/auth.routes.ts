@@ -3,12 +3,12 @@ import { FastifyInstance } from "fastify";
 import { AuthController } from "../controllers/auth.controller";
 import container from "../inversify.config";
 import { ApiHelper } from "../utils/ApiHelper";
-import { GenerateOTPRequestI, VerifyOtpRequestI } from "../types/types";
+import { GenerateOTPRequestI, GetLoginPageQueryStringI, VerifyOtpRequestI } from "../types/types";
 
 export default async (app: FastifyInstance) => {
   const authController = container.resolve<AuthController>(AuthController)
 
-  ApiHelper.get<{}, {}, {}>(
+  ApiHelper.get<GetLoginPageQueryStringI, {}, {}>(
     app,
     "/",
     authController.getLoginPage.bind(authController)

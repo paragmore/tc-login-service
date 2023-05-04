@@ -4,23 +4,20 @@ import { OTPModel } from "../models/otp.model";
 import { AuthRepo } from "../repo/auth.repo";
 import { USER_TYPE } from "../types/types";
 import { ApiError } from "../utils/ApiHelper";
+import ejs from "ejs";
+import mustache from "mustache";
+import path from "path";
 
 @injectable()
 export class AuthService {
   constructor(@inject(AuthRepo) private authRepo: AuthRepo) {}
-  getLoginPage() {
-    return `<html>
-    <head>
-      <title>Login</title>
-    </head>
-    <body>
-      <form method="POST" action="/login">
-        <label for="phone">Phone number:</label>
-        <input type="text" id="phone" name="phone"><br><br>
-        <button type="submit">Generate OTP</button>
-      </form>
-    </body>
-  </html>`;
+  
+  async getLoginPage(storeId: string, userType: USER_TYPE) {
+    const filePath = path.join(__dirname, "..", "../public", "login.html");
+    console.log(filePath);
+    const stringRender = await ejs.renderFile(filePath)
+    const rendered = mustache.render(stringRender, { storeId: storeId, userType: userType});
+    return rendered
   }
 
   generateEasyOTP(length: number): string {

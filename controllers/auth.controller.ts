@@ -3,6 +3,7 @@ import path from "path";
 import { AuthService } from "../service/auth.service";
 import {
   GenerateOTPRequestI,
+  GetLoginPageQueryStringI,
   USER_TYPE,
   VerifyOtpRequestI,
 } from "../types/types";
@@ -12,21 +13,21 @@ import {
   ApiHelperHandler,
   IReply,
 } from "../utils/ApiHelper";
-import ejs from "ejs";
-
 @injectable()
 export class AuthController {
   constructor(@inject(AuthService) private authService: AuthService) {}
-  getLoginPage: ApiHelperHandler<{}, {}, {}, {}, IReply> = async (
-    request,
-    reply
-  ) => {
-    const loginPage = this.authService.getLoginPage();
-    const filePath = path.join(__dirname, "..", "../public", "login.ejs");
-    console.log(filePath);
-    reply.type("text/html");
-    return ejs.renderFile(filePath);
-  };
+  getLoginPage: ApiHelperHandler<{}, GetLoginPageQueryStringI, {}, {}, IReply> =
+    async (request, reply) => {
+      const { query } = request;
+      const { storeId, userType } = query;
+      if(!storeId || !userType){
+        return ApiHelper.missingParameters(reply)
+      }
+      const loginPage = await this.authService.getLoginPage(storeId, userType);
+      reply.type("text/html");
+      //@ts-ignore
+      return reply.send(loginPage);
+    };
 
   generateOtp: ApiHelperHandler<GenerateOTPRequestI, {}, {}, {}, IReply> =
     async (request, reply) => {
