@@ -8,7 +8,6 @@ const customerSchema = new Schema(
     },
     name: {
       type: String,
-      default: "",
     },
     address: {
       type: {
@@ -17,7 +16,6 @@ const customerSchema = new Schema(
         state: String,
         zip: String,
       },
-      default: {},
     },
     storeId: {
       type: Schema.Types.ObjectId,
@@ -26,7 +24,6 @@ const customerSchema = new Schema(
     },
     photoUrl: {
       type: String,
-      default: "",
     },
   },
   { timestamps: true }

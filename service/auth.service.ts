@@ -7,17 +7,21 @@ import { ApiError } from "../utils/ApiHelper";
 import ejs from "ejs";
 import mustache from "mustache";
 import path from "path";
+import jwt from "jsonwebtoken";
 
 @injectable()
 export class AuthService {
   constructor(@inject(AuthRepo) private authRepo: AuthRepo) {}
-  
+
   async getLoginPage(storeId: string, userType: USER_TYPE) {
     const filePath = path.join(__dirname, "..", "../public", "login.html");
     console.log(filePath);
-    const stringRender = await ejs.renderFile(filePath)
-    const rendered = mustache.render(stringRender, { storeId: storeId, userType: userType});
-    return rendered
+    const stringRender = await ejs.renderFile(filePath);
+    const rendered = mustache.render(stringRender, {
+      storeId: storeId,
+      userType: userType,
+    });
+    return rendered;
   }
 
   generateEasyOTP(length: number): string {
@@ -94,10 +98,33 @@ export class AuthService {
       storedOtp.expiresAt > new Date()
     ) {
       if (userType === USER_TYPE.CUSTOMER && storeId) {
-        const customer = await this.authRepo.getOrCreateCustomerByPhone(phoneNumber, storeId);
-        return true;
+        const customer = await this.authRepo.getOrCreateCustomerByPhone(
+          phoneNumber,
+          storeId
+        );
+        if (customer instanceof ApiError) {
+          return customer;
+        }
+        if (!process.env.JWT_SECRET) {
+          return new ApiError(
+            "Error in AuthService: verifyOtp => JWT_SECRET not found",
+            500
+          );
+        }
+        const refreshToken = jwt.sign(
+          { customerId: customer.id, storeId: customer.storeId },
+          process.env.JWT_SECRET,
+          { expiresIn: "72h" }
+        );
+        const accessToken = jwt.sign(
+          { customerId: customer.id, storeId: customer.storeId },
+          process.env.JWT_SECRET,
+          { expiresIn: "1h" }
+        );
+
+        return { refreshToken, accessToken };
       }
     }
-    return false;
+    return new ApiError('Please enter correct OTP', 400);
   }
 }
