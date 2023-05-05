@@ -18,6 +18,7 @@ export class AuthController {
   constructor(@inject(AuthService) private authService: AuthService) {}
   getLoginPage: ApiHelperHandler<{}, GetLoginPageQueryStringI, {}, {}, IReply> =
     async (request, reply) => {
+      console.log(request.headers)
       const { query } = request;
       const { storeId, userType } = query;
       if(!storeId || !userType){
@@ -59,6 +60,7 @@ export class AuthController {
     request,
     reply
   ) => {
+    console.log(request.cookies)
     const { body } = request;
     if (!body?.phoneNumber || !body.otp || !body.userType) {
       return ApiHelper.missingParameters(reply);
@@ -72,9 +74,15 @@ export class AuthController {
       body.userType,
       body.storeId
     );
-    if (!isCorrectOtp) {
-      return ApiHelper.callFailed(reply, "Please enter correct otp", 400);
+    if (isCorrectOtp instanceof ApiError) {
+      return ApiHelper.callFailed(reply, isCorrectOtp.message, isCorrectOtp.code);
     }
+    reply.setCookie('refreshToken', isCorrectOtp.refreshToken, {
+      path:'/auth/verifyOtp',
+      secure: true,
+      httpOnly: true,
+      expires: new Date(Date.now() + 73 * 3600 * 1000) // expires in 73 hours
+    })
     return ApiHelper.success(reply, isCorrectOtp);
   };
 }

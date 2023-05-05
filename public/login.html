@@ -9,22 +9,127 @@
 </head>
 
 <body>
-    <h1>Enter Your Phone Number</h1>
-    <form id="phone-form">
-        <label for="phone">Phone Number:</label>
-        <div style="position: relative; display: flex; align-items: center;width: 100%; max-width: 400px;">
-            <input type="tel" id="phone" name="phone" required>
-            <button class="edit-button">
-                <i class="fa fa-pencil"></i>
-            </button>
+    <div id="main-container">
+        <h1>Enter Your Phone Number</h1>
+        <form id="phone-form" style="width: 100%;">
+            <label for="phone">Phone Number:</label>
+            <div style="position: relative; display: flex; align-items: center;width: 100%; max-width: 400px;">
+                <input id="phone-input" type="tel"  name="phone" required>
+                <button onclick="event.preventDefault();enableEditPhone()" class="edit-button" id="edit-phone-button">
+                    <i class="fa fa-pencil"></i>
+                </button>
+            </div>
+            <br>
+        </form>
+        <div id="otp-container">
+            <form id="otp-form">
+                <label for="code">
+                    OTP Code:
+                </label>
+                <input type="number" name="otp-input" id="otp-input" required>
+            </form>
+            <button onclick="onOtpSubmit()" class="submit-button" type="submit">Verify OTP</button>
         </div>
-        <br>
-        <div id="otp-container"></div>
-        <button class="submit-button" type="submit">Send OTP</button>
-    </form>
+        <button onclick="onPhoneSubmit()" class="submit-button" id="send-otp-button" type="submit">Send OTP</button>
+
+    </div>
+
 
     <script>
         console.log("hello from server");
+
+        async function generateOtp(phone) {
+            const response = await fetch("http://localhost:8000/auth/generateOtp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    phoneNumber: phone,
+                    userType: "{{userType}}",
+                    storeId: "{{storeId}}",
+                }),
+            });
+            return await response.json();
+        }
+
+        async function verifyOtp(code, phone) {
+            const response = await fetch("http://localhost:8000/auth/verifyOtp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    otp: code,
+                    phoneNumber: phone,
+                    userType: "{{userType}}",
+                    storeId: "{{storeId}}",
+                }),
+            });
+            return await response.json();
+        }
+
+        async function enableEditPhone() {
+            const phoneNumberInput = document.getElementById("phone-input");
+            phoneNumberInput.disabled = false;
+            phoneNumberInput.innerText = "";
+            showOtpContainer(false)
+        }
+
+        async function showOtpContainer(visible) {
+            const otpContainer = document.getElementById("otp-container");
+            otpContainer.style.display = visible ? "flex" : "none";
+        }
+
+        async function togglePhoneInputDisabled(disabled) {
+            const phoneNumberInput = document.getElementById("phone-input");
+            console.log(phoneNumberInput)
+            phoneNumberInput.disabled = disabled;
+        }
+
+        async function onOtpSubmit() {
+            const verifyOtpForm = document.getElementById("otp-form")
+            const formData = new FormData(verifyOtpForm);
+            const code = formData.get("otp-input");
+            const phone = document.getElementById("phone-input").value;
+            try {
+                const data = await verifyOtp(code, phone)
+                if (data.message === "Success") {
+                    alert("Success");
+                } else {
+                    alert("Invalid OTP code");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Failed to verify OTP code");
+            }
+        }
+
+        async function onPhoneSubmit() {
+            const input = document.getElementById("phone-input");
+            console.log('form', input)
+            const phone = input.value
+            try {
+                const data = await generateOtp(phone)
+                if (data.message === "Success") {
+                    showOtpContainer(true)
+                    togglePhoneInputDisabled(true)
+                    const sendButton = document.getElementById("send-otp-button")
+                    sendButton.disabled = true;
+                    sendButton.innerText = "Resend OTP (30)";
+                    // Start countdown timer
+                    countdownTimer(sendButton, 10000 / 1000);
+                    setTimeout(() => {
+                        sendButton.disabled = false;
+                    }, 10000);
+                } else {
+                    alert("Failed to send OTP code");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Failed to send OTP code");
+            }
+        }
         function countdownTimer(sendButton, seconds, callback) {
             let remainingTime = seconds;
 
@@ -34,110 +139,10 @@
                     clearInterval(intervalId);
                     callback();
                 } else {
-                    sendButton.textContent = `Resend OTP (${remainingTime}s)`;
+                    sendButton.textContent = `Resend OTP ${remainingTime > 0 ? `(${remainingTime}s)` : ''}`;
                 }
             }, 1000);
         }
-        console.log("hello from serve 2r");
-
-        const form = document.getElementById("phone-form");
-        console.log(form)
-        form?.addEventListener("submit", async (event) => {
-            console.log('heree')
-            event.preventDefault();
-            const formData = new FormData(form);
-            const phone = formData.get("phone");
-            try {
-                const response = await fetch("http://localhost:8000/auth/generateOtp", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        phoneNumber: phone,
-                        userType: "{{userType}}",
-                        storeId: "{{storeId}}",
-                    }),
-                });
-                const data = await response.json();
-                if (data.message === "Success") {
-                    const otpContainer = document.getElementById("otp-container");
-                    const phoneNumberInput = document.getElementById("phone");
-                    const sendButton = form.querySelector('button[type="submit"]');
-                    const resendButton = document.createElement("button");
-                    resendButton.className = "submit-button";
-                    resendButton.type = "button";
-                    resendButton.innerText = "Resend OTP";
-                    resendButton.disabled = true;
-                    const verifyOtpForm = document.createElement("form");
-                    verifyOtpForm.id = "otp-form";
-                    const verifyOtpLabel = document.createElement("label");
-                    verifyOtpLabel.for = "code";
-                    verifyOtpLabel.innerText = "OTP Code:";
-                    const verifyOtpInput = document.createElement("input");
-                    verifyOtpInput.type = "text";
-                    verifyOtpInput.id = "otp-input";
-                    verifyOtpInput.name = "otp-input";
-                    verifyOtpInput.required = true;
-                    const verifyOtpButton = document.createElement("button");
-                    verifyOtpButton.type = "submit";
-                    verifyOtpButton.innerText = "Verify OTP";
-                    verifyOtpButton.className = "submit-button";
-
-                    verifyOtpForm.appendChild(verifyOtpLabel);
-                    verifyOtpForm.appendChild(verifyOtpInput);
-                    verifyOtpForm.appendChild(document.createElement("br"));
-                    verifyOtpForm.appendChild(verifyOtpButton);
-                    otpContainer.appendChild(verifyOtpForm);
-
-                    phoneNumberInput.disabled = true;
-                    otpContainer.style.display = "block";
-                    sendButton.disabled = true;
-                    sendButton.innerText = "Resend OTP (60)";
-                    // Start countdown timer
-                    countdownTimer(sendButton, 60000 / 1000);
-                    setTimeout(() => {
-                        sendButton.disabled = false;
-                    }, 60000);
-
-                    verifyOtpForm.addEventListener("submit", async (event) => {
-                        event.preventDefault();
-                        const formData = new FormData(verifyOtpForm);
-                        const code = formData.get("otp-input");
-                        const phone = document.getElementById("phone").value;
-                        try {
-                            const response = await fetch("http://localhost:8000/auth/verifyOtp", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                    otp: code,
-                                    phoneNumber: phone,
-                                    userType: "{{userType}}",
-                                    storeId: "{{storeId}}",
-                                }),
-                            });
-                            const data = await response.json();
-                            if (data.message === "Success") {
-                                alert("Success");
-                            } else {
-                                alert("Invalid OTP code");
-                            }
-                        } catch (error) {
-                            console.error(error);
-                            alert("Failed to verify OTP code");
-                        }
-                    });
-                } else {
-                    alert("Failed to send OTP code");
-                }
-            } catch (error) {
-                console.error(error);
-                alert("Failed to send OTP code");
-            }
-        });
-
     </script>
 </body>
 

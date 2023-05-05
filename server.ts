@@ -8,6 +8,8 @@ import fastifyStatic from "@fastify/static";
 import path from "path";
 import { connectMongoDB } from "./mongoose.config";
 import { config } from 'dotenv';
+import { FastifyCookieOptions } from "@fastify/cookie";
+import cookie from '@fastify/cookie'
 
 // Load environment variables from .env file
 config();
@@ -56,6 +58,11 @@ app.register(cors)
 app.register(underPressure, underPressureConfig());
 app.register(fastifySwagger, swaggerConfig());
 app.register(fastifyStatic,fastifyStaticConfig())
+app.register(cookie, {
+  secret: "my-secret", // for cookies signature
+  hook: 'onRequest', 
+  parseOptions: {}     // options for parsing cookies
+} as FastifyCookieOptions)
 app.register(require('@fastify/swagger-ui'), {
     routePrefix: '/documentation',
     uiConfig: {
