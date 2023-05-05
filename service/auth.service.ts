@@ -73,7 +73,11 @@ export class AuthService {
         }
         await OTPModel.updateOne(
           { _id: otp._id },
-          { attempts: otp.attempts + 1, otp: newOtp }
+          {
+            attempts: otp.attempts + 1,
+            otp: newOtp,
+            expiresAt: addMinutes(new Date(), 5),
+          }
         );
       }
     } catch (error) {
@@ -124,6 +128,6 @@ export class AuthService {
         return { refreshToken, accessToken };
       }
     }
-    return new ApiError('Please enter correct OTP', 400);
+    return new ApiError("Please enter correct OTP", 400);
   }
 }
