@@ -59,22 +59,19 @@ export class AuthService {
         });
         await otpDocument.save();
       } else {
-        console.log(
-          addMinutes(otp.updatedAt, 5).toUTCString(),
-          new Date().toUTCString(),
-          otp.updatedAt.toUTCString(),
-          addMinutes(otp.updatedAt, 5) > new Date()
-        );
-        if (addMinutes(otp.updatedAt, 5) > new Date() && otp.attempts >= 3) {
+        const callWithinTimeInterval =
+          addMinutes(otp.updatedAt, 5) > new Date();
+        if (callWithinTimeInterval && otp.attempts >= 3) {
           return new ApiError(
             "Too frequent calls, Please try again later",
             400
           );
         }
+        const attempts = callWithinTimeInterval ? otp.attempts + 1 : 0;
         await OTPModel.updateOne(
           { _id: otp._id },
           {
-            attempts: otp.attempts + 1,
+            attempts: attempts,
             otp: newOtp,
             expiresAt: addMinutes(new Date(), 5),
           }
