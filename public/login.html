@@ -10,28 +10,38 @@
 
 <body>
     <div id="main-container">
-        <h1>Enter Your Phone Number</h1>
+        <h1>
+            Welcome to TaxPayer Corner
+        </h1>
         <form id="phone-form" style="width: 100%;">
-            <label for="phone">Phone Number:</label>
-            <div style="position: relative; display: flex; align-items: center;width: 100%; max-width: 400px;">
-                <input id="phone-input" type="tel"  name="phone" required>
-                <button onclick="event.preventDefault();enableEditPhone()" class="edit-button" id="edit-phone-button">
-                    <i class="fa fa-pencil"></i>
-                </button>
+            <div class="labeled-input-container">
+                <label for="phone">Enter phone number:</label>
+                <div class="login-input-container">
+                    <input id="phone-input" type="tel" name="phone" required>
+                    <button onclick="event.preventDefault();enableEditPhone()" class="edit-button"
+                        id="edit-phone-button">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                </div>
             </div>
             <br>
         </form>
         <div id="otp-container">
             <form id="otp-form">
-                <label for="code">
-                    OTP Code:
-                </label>
-                <input type="number" name="otp-input" id="otp-input" required>
+                <div class="labeled-input-container">
+                    <label for="code">
+                        OTP Code:
+                    </label>
+                    <div class="login-input-container">
+                        <input type="number" name="otp-input" id="otp-input" required>
+                    </div>
+                </div>
             </form>
+            <button onclick="onPhoneSubmit()" id="resend-otp-button" type="submit">Resend OTP</button>
             <button onclick="onOtpSubmit()" class="submit-button" type="submit">Verify OTP</button>
         </div>
-        <button onclick="onPhoneSubmit()" class="submit-button" id="send-otp-button" type="submit">Send OTP</button>
-
+        <button onclick="onPhoneSubmit()" id="phone-submit-button" class="submit-button" id="send-otp-button"
+            type="submit">Send OTP</button>
     </div>
 
 
@@ -73,6 +83,8 @@
             const phoneNumberInput = document.getElementById("phone-input");
             phoneNumberInput.disabled = false;
             phoneNumberInput.innerText = "";
+            const sendButton = document.getElementById("send-otp-button")
+            sendButton.style.display = 'inline-block';
             showOtpContainer(false)
         }
 
@@ -95,7 +107,8 @@
             try {
                 const data = await verifyOtp(code, phone)
                 if (data.message === "Success") {
-                    alert("Success");
+                    localStorage.setItem('accessToken',data.body.accessToken)
+                    localStorage.setItem('refreshToken', data.body.refreshToken)
                 } else {
                     alert("Invalid OTP code");
                 }
@@ -114,13 +127,15 @@
                 if (data.message === "Success") {
                     showOtpContainer(true)
                     togglePhoneInputDisabled(true)
+                    const resendButton = document.getElementById("resend-otp-button")
                     const sendButton = document.getElementById("send-otp-button")
-                    sendButton.disabled = true;
-                    sendButton.innerText = "Resend OTP (30)";
+                    sendButton.style.display = 'none';
+                    resendButton.disabled = true;
+                    resendButton.innerText = "Resend OTP (30)";
                     // Start countdown timer
-                    countdownTimer(sendButton, 10000 / 1000);
+                    countdownTimer(resendButton, 10000 / 1000);
                     setTimeout(() => {
-                        sendButton.disabled = false;
+                        resendButton.disabled = false;
                     }, 10000);
                 } else {
                     alert("Failed to send OTP code");
@@ -130,7 +145,7 @@
                 alert("Failed to send OTP code");
             }
         }
-        function countdownTimer(sendButton, seconds, callback) {
+        function countdownTimer(resendButton, seconds, callback) {
             let remainingTime = seconds;
 
             const intervalId = setInterval(() => {
@@ -139,10 +154,11 @@
                     clearInterval(intervalId);
                     callback();
                 } else {
-                    sendButton.textContent = `Resend OTP ${remainingTime > 0 ? `(${remainingTime}s)` : ''}`;
+                    resendButton.textContent = `Resend OTP ${remainingTime > 0 ? `(${remainingTime}s)` : ''}`;
                 }
             }, 1000);
         }
+
     </script>
 </body>
 
