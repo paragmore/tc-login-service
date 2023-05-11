@@ -115,12 +115,13 @@ export class AuthService {
           return customer;
         }
         user = customer;
-      } else if (userType === USER_TYPE.BUSINESS_ADMIN && storeId) {
-        const businessAdmin =
-          await this.authRepo.getOrCreateBusinessAdminByPhone(
-            phoneNumber,
-            storeId
-          );
+      } else if (userType === USER_TYPE.BUSINESS_ADMIN) {
+        const businessAdmin = storeId
+          ? await this.authRepo.getOrCreateBusinessAdminByPhoneAndStoreId(
+              phoneNumber,
+              storeId
+            )
+          : await this.authRepo.getOrCreateBusinessAdminByPhone(phoneNumber);
         if (businessAdmin instanceof ApiError) {
           return businessAdmin;
         }

@@ -18,11 +18,14 @@ export class AuthController {
   constructor(@inject(AuthService) private authService: AuthService) {}
   getLoginPage: ApiHelperHandler<{}, GetLoginPageQueryStringI, {}, {}, IReply> =
     async (request, reply) => {
-      console.log(request.headers)
+      console.log(request.headers);
       const { query } = request;
       const { storeId, userType } = query;
-      if(!storeId || !userType){
-        return ApiHelper.missingParameters(reply)
+      if (!userType) {
+        return ApiHelper.missingParameters(reply);
+      }
+      if (userType === USER_TYPE.CUSTOMER && !storeId) {
+        return ApiHelper.missingParameters(reply);
       }
       const loginPage = await this.authService.getLoginPage(storeId, userType);
       reply.type("text/html");
@@ -60,7 +63,7 @@ export class AuthController {
     request,
     reply
   ) => {
-    console.log(request.cookies)
+    console.log(request.cookies);
     const { body } = request;
     if (!body?.phoneNumber || !body.otp || !body.userType) {
       return ApiHelper.missingParameters(reply);
@@ -75,14 +78,18 @@ export class AuthController {
       body.storeId
     );
     if (isCorrectOtp instanceof ApiError) {
-      return ApiHelper.callFailed(reply, isCorrectOtp.message, isCorrectOtp.code);
+      return ApiHelper.callFailed(
+        reply,
+        isCorrectOtp.message,
+        isCorrectOtp.code
+      );
     }
-    reply.setCookie('refreshToken', isCorrectOtp.refreshToken, {
-      path:'/auth/verifyOtp',
+    reply.setCookie("refreshToken", isCorrectOtp.refreshToken, {
+      path: "/auth/verifyOtp",
       secure: true,
       httpOnly: true,
-      expires: new Date(Date.now() + 73 * 3600 * 1000) // expires in 73 hours
-    })
+      expires: new Date(Date.now() + 73 * 3600 * 1000), // expires in 73 hours
+    });
     return ApiHelper.success(reply, isCorrectOtp);
   };
 }

@@ -31,7 +31,34 @@ export class AuthRepo {
     }
   }
 
-  async getOrCreateBusinessAdminByPhone(phoneNumber: string, storeId: string) {
+  async getOrCreateBusinessAdminByPhone(phoneNumber: string) {
+    try {
+      const businessAdmin = await BusinessAdminModel.findOne({
+        phoneNumber: phoneNumber,
+      }).sort({
+        createdAt: -1,
+      });
+      console.log(!businessAdmin);
+      if (!businessAdmin) {
+        const businessAdminDocument = new BusinessAdminModel({
+          phoneNumber: phoneNumber,
+        });
+        return await businessAdminDocument.save();
+      }
+      return businessAdmin;
+    } catch (error) {
+      console.log(
+        "Error caught in AuthRepo: getOrCreateBusinessAdminByPhone => ",
+        error
+      );
+      return new ApiError(
+        "Some error occurred while businessAdmin creation",
+        500
+      );
+    }
+  }
+
+  async getOrCreateBusinessAdminByPhoneAndStoreId(phoneNumber: string, storeId: string) {
     try {
       const businessAdmin = await BusinessAdminModel.findOne({
         phoneNumber: phoneNumber,
@@ -39,6 +66,7 @@ export class AuthRepo {
       }).sort({
         createdAt: -1,
       });
+      console.log(!businessAdmin);
       if (!businessAdmin) {
         const businessAdminDocument = new BusinessAdminModel({
           phoneNumber: phoneNumber,

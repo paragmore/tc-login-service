@@ -16,7 +16,6 @@ const businessAdminSchema = new Schema(
     storeId: {
       type: Schema.Types.ObjectId,
       ref: "Store",
-      required: true,
     },
     photoUrl: {
       type: String,
