@@ -40,8 +40,7 @@
             <button onclick="onPhoneSubmit()" id="resend-otp-button" type="submit">Resend OTP</button>
             <button onclick="onOtpSubmit()" class="submit-button" type="submit">Verify OTP</button>
         </div>
-        <button onclick="onPhoneSubmit()" id="phone-submit-button" class="submit-button" id="send-otp-button"
-            type="submit">Send OTP</button>
+        <button onclick="onPhoneSubmit()" class="submit-button" id="send-otp-button" type="submit">Send OTP</button>
     </div>
 
 
@@ -107,8 +106,9 @@
             try {
                 const data = await verifyOtp(code, phone)
                 if (data.message === "Success") {
-                    localStorage.setItem('accessToken',data.body.accessToken)
+                    localStorage.setItem('accessToken', data.body.accessToken)
                     localStorage.setItem('refreshToken', data.body.refreshToken)
+                    window.location.replace('/home')
                 } else {
                     alert("Invalid OTP code");
                 }

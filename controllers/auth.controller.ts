@@ -65,7 +65,7 @@ export class AuthController {
     if (!body?.phoneNumber || !body.otp || !body.userType) {
       return ApiHelper.missingParameters(reply);
     }
-    if (body.userType !== USER_TYPE.SUPER_ADMIN && !body.storeId) {
+    if (body.userType === USER_TYPE.CUSTOMER && !body.storeId) {
       return ApiHelper.missingParameters(reply);
     }
     const isCorrectOtp = await this.authService.verifyOtp(
