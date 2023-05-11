@@ -1,6 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
-const customerSchema = new Schema(
+export enum BusinessAdminRolesEnum {
+  ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+}
+const businessAdminSchema = new Schema(
   {
     phoneNumber: {
       type: String,
@@ -17,8 +21,15 @@ const customerSchema = new Schema(
     photoUrl: {
       type: String,
     },
+    role: {
+      type: String,
+      enum: Object.values(BusinessAdminRolesEnum),
+    },
   },
   { timestamps: true }
 );
 
-export const CustomerModel = mongoose.model("Customer", customerSchema);
+export const BusinessAdminModel = mongoose.model(
+  "BusinessAdmin",
+  businessAdminSchema
+);

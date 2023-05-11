@@ -2,6 +2,7 @@ export enum USER_TYPE {
   CUSTOMER = "CUSTOMER",
   STORE_ADMIN = "STORE_ADMIN",
   SUPER_ADMIN = "SUPER_ADMIN",
+  BUSINESS_ADMIN = "BUSINESS_ADMIN"
 }
 export interface CustomerI {
   phoneNumber: string;

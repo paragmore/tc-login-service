@@ -1,4 +1,5 @@
 import { injectable } from "inversify";
+import { BusinessAdminModel } from "../models/business.admin.model";
 import { CustomerModel } from "../models/customer.model";
 import { ApiError } from "../utils/ApiHelper";
 
@@ -27,6 +28,34 @@ export class AuthRepo {
         error
       );
       return new ApiError("Some error occurred while customer creation", 500);
+    }
+  }
+
+  async getOrCreateBusinessAdminByPhone(phoneNumber: string, storeId: string) {
+    try {
+      const businessAdmin = await BusinessAdminModel.findOne({
+        phoneNumber: phoneNumber,
+        storeId,
+      }).sort({
+        createdAt: -1,
+      });
+      if (!businessAdmin) {
+        const businessAdminDocument = new BusinessAdminModel({
+          phoneNumber: phoneNumber,
+          storeId: storeId,
+        });
+        return await businessAdminDocument.save();
+      }
+      return businessAdmin;
+    } catch (error) {
+      console.log(
+        "Error caught in AuthRepo: getOrCreateBusinessAdminByPhone => ",
+        error
+      );
+      return new ApiError(
+        "Some error occurred while businessAdmin creation",
+        500
+      );
     }
   }
 }

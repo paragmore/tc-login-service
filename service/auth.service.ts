@@ -98,6 +98,13 @@ export class AuthService {
       storedOtp?.otp === otp &&
       storedOtp.expiresAt > new Date()
     ) {
+      let user;
+      if (!process.env.JWT_SECRET) {
+        return new ApiError(
+          "Error in AuthService: verifyOtp => JWT_SECRET not found",
+          500
+        );
+      }
       if (userType === USER_TYPE.CUSTOMER && storeId) {
         const customer = await this.authRepo.getOrCreateCustomerByPhone(
           phoneNumber,
@@ -106,24 +113,32 @@ export class AuthService {
         if (customer instanceof ApiError) {
           return customer;
         }
-        if (!process.env.JWT_SECRET) {
-          return new ApiError(
-            "Error in AuthService: verifyOtp => JWT_SECRET not found",
-            500
+        user = customer;
+      } else if (userType === USER_TYPE.BUSINESS_ADMIN && storeId) {
+        const businessAdmin =
+          await this.authRepo.getOrCreateBusinessAdminByPhone(
+            phoneNumber,
+            storeId
           );
+        if (businessAdmin instanceof ApiError) {
+          return businessAdmin;
         }
-        const refreshToken = jwt.sign(
-          { customerId: customer.id, storeId: customer.storeId },
-          process.env.JWT_SECRET,
-          { expiresIn: "72h" }
-        );
-        const accessToken = jwt.sign(
-          { customerId: customer.id, storeId: customer.storeId },
-          process.env.JWT_SECRET,
-          { expiresIn: "1h" }
-        );
-        return { refreshToken, accessToken };
+        user = businessAdmin;
       }
+      if (!user) {
+        return new ApiError("USER could not be found or created", 500);
+      }
+      const refreshToken = jwt.sign(
+        { userId: user.id, storeId: user.storeId, userType },
+        process.env.JWT_SECRET,
+        { expiresIn: "72h" }
+      );
+      const accessToken = jwt.sign(
+        { userId: user.id, storeId: user.storeId, userType },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+      return { refreshToken, accessToken };
     }
     return new ApiError("Please enter correct OTP", 400);
   }
