@@ -131,12 +131,12 @@ export class AuthService {
         return new ApiError("USER could not be found or created", 500);
       }
       const refreshToken = jwt.sign(
-        { userId: user.id, storeId: user.storeId, userType },
+        { userId: user.id, userType },
         process.env.JWT_SECRET,
         { expiresIn: "72h" }
       );
       const accessToken = jwt.sign(
-        { userId: user.id, storeId: user.storeId, userType },
+        { userId: user.id, userType },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );

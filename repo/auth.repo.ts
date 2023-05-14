@@ -1,6 +1,10 @@
 import { injectable } from "inversify";
-import { BusinessAdminModel } from "../models/business.admin.model";
+import {
+  BusinessAdminModel,
+  BusinessAdminRolesEnum,
+} from "../models/business.admin.model";
 import { CustomerModel } from "../models/customer.model";
+import { StoreModel } from "../models/store.model";
 import { ApiError } from "../utils/ApiHelper";
 
 @injectable()
@@ -40,8 +44,10 @@ export class AuthRepo {
       });
       console.log(!businessAdmin);
       if (!businessAdmin) {
+        const newStore = await this.createNewStore()
         const businessAdminDocument = new BusinessAdminModel({
           phoneNumber: phoneNumber,
+          stores:[{storeId: newStore.id}]
         });
         return await businessAdminDocument.save();
       }
@@ -58,21 +64,33 @@ export class AuthRepo {
     }
   }
 
-  async getOrCreateBusinessAdminByPhoneAndStoreId(phoneNumber: string, storeId: string) {
+  async createNewStore(){
+    const newStoreDocument = new StoreModel({})
+    const newStore = await newStoreDocument.save()
+    return newStore
+  }
+
+  async getOrCreateBusinessAdminByPhoneAndStoreId(
+    phoneNumber: string,
+    storeId: string
+  ) {
     try {
       const businessAdmin = await BusinessAdminModel.findOne({
         phoneNumber: phoneNumber,
-        storeId,
       }).sort({
         createdAt: -1,
       });
       console.log(!businessAdmin);
       if (!businessAdmin) {
-        const businessAdminDocument = new BusinessAdminModel({
-          phoneNumber: phoneNumber,
-          storeId: storeId,
-        });
-        return await businessAdminDocument.save();
+        // const businessAdminDocument = new BusinessAdminModel({
+        //   phoneNumber: phoneNumber,
+        // });
+
+        // businessAdminDocument.stores.push({
+        //   storeId: storeId,
+        //   role: BusinessAdminRolesEnum.MANAGER,
+        // });
+        // return await businessAdminDocument.save();
       }
       return businessAdmin;
     } catch (error) {

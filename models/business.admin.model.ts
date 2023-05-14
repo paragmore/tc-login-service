@@ -13,21 +13,24 @@ const businessAdminSchema = new Schema(
     name: {
       type: String,
     },
-    storeId: {
-      type: Schema.Types.ObjectId,
-      ref: "Store",
-    },
+    stores: [
+      {
+        storeId: {
+          type: Schema.Types.ObjectId,
+          ref: "Store",
+        },
+        role: {
+          type: String,
+          enum: Object.values(BusinessAdminRolesEnum),
+        },
+      },
+    ],
     photoUrl: {
       type: String,
-    },
-    role: {
-      type: String,
-      enum: Object.values(BusinessAdminRolesEnum),
     },
   },
   { timestamps: true }
 );
-
 export const BusinessAdminModel = mongoose.model(
   "BusinessAdmin",
   businessAdminSchema
