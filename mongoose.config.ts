@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 import { ConnectionOptions } from "tls";
+import { isProd } from "./utils/environment";
 
 export const connectMongoDB = () => {
-    console.log('hereee')
-  if (!process.env.MONGODB_URI) {
+  console.log("hereee");
+  const uri = isProd ? process.env.MONGODB_URI : process.env.MONGODB_LOCAL_URI;
+  if (!uri) {
     console.log("MONGODB_URI not present");
     return;
   }
   mongoose
-    .connect(process.env.MONGODB_URI, {
+    .connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     } as ConnectionOptions)

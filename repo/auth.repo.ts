@@ -5,6 +5,7 @@ import {
 } from "../models/business.admin.model";
 import { CustomerModel } from "../models/customer.model";
 import { StoreModel } from "../models/store.model";
+import { USER_TYPE } from "../types/types";
 import { ApiError } from "../utils/ApiHelper";
 
 @injectable()
@@ -47,7 +48,7 @@ export class AuthRepo {
         const newStore = await this.createNewStore()
         const businessAdminDocument = new BusinessAdminModel({
           phoneNumber: phoneNumber,
-          stores:[{storeId: newStore.id}]
+          stores:[{storeId: newStore.id, role: BusinessAdminRolesEnum.ADMIN}]
         });
         return await businessAdminDocument.save();
       }
