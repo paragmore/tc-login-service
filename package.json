@@ -11,7 +11,8 @@
     "dev": "nodemon dist/server.js",
     "test": "cross-env NODE_ENV=test jest --testTimeout=5000",
     "bump-version": "npm version patch",
-    "deploy": "serverless"
+    "deploy": "serverless",
+    "type:check": "tsc"
   },
   "keywords": [],
   "author": "",

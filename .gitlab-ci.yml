@@ -1,38 +1,86 @@
-image: public.ecr.aws/sam/build-nodejs18.x
+# Node.js Function App to Linux on Azure
+# Build a Node.js function app and deploy it to Azure as a Linux function app.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+# This defined the Git repository branch to execute the deployment logic on
+trigger:
+- deploy
+
+variables:
+
+ # Azure Resource Manager connection created during pipeline creation
+ # Thai can be retrieved from within the Azure Portal
+ azureSubscription: '9d5c29bc-16d4-48a6-b2bc-cb360e4e3362'
+
+ # Function app name. Set this to the name of your function app
+ functionAppName: 'tpc-microservice'
+
+ # Environment name
+ environmentName: 'tpc-microservice'
+
+ # Agent VM image name. Change this to 'windows-latest' if your function app is a windows based app service.
+ vmImageName: 'ubuntu-latest'
 
 stages:
-  - build
-  - test
-  - deploy
+- stage: Build
+ displayName: Build stage
+ jobs:
+ - job: Build
+   displayName: Build
+   pool:
+     vmImage: $(vmImageName)
 
-cache:
-  key:
-    files:
-      - package-lock.json
-  paths:
-    - node_modules/
+   steps:
+   - task: NodeTool@0
+     inputs:
+       versionSpec: '18.x'
+     displayName: 'Install Node.js'
 
-install_dependencies:
-  stage: build
-  script:
-    - npm install
-    - npm run build
+   - script: |
+       if [ -f extensions.csproj ]
+       then
+           dotnet build extensions.csproj --runtime ubuntu.16.04-x64 --output ./bin
+       fi
+     displayName: 'Build extensions'
 
-# run_tests:
-#   stage: test
-#   needs:
-#     - install_dependencies
-#   script: npm run test
+   - script: |
+       npm install
+       npm run build --if-present
+       npm run test --if-present
+     displayName: 'Prepare binaries'
 
-deploy_to_aws:
-  stage: deploy
-  variables:
-    AWS_ACCESS_KEY_ID: "$AWS_ACCESS_KEY_ID"
-    AWS_SECRET_ACCESS_KEY: "$AWS_SECRET_ACCESS_KEY"
-  needs:
-    - install_dependencies
-#    - run_tests
-  script:
-    - echo $AWS_ACCESS_KEY_ID
-    - npm install -g serverless
-    - npm run deploy
+   - task: ArchiveFiles@2
+     displayName: 'Archive files'
+     inputs:
+       rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+       includeRootFolder: false
+       archiveType: zip
+       archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+       replaceExistingArchive: true
+
+   - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+     artifact: drop
+
+- stage: Deploy
+ displayName: Deploy stage
+ dependsOn: Build
+ condition: succeeded()
+ jobs:
+ - deployment: Deploy
+   displayName: Deploy
+   environment: $(environmentName)
+   pool:
+     vmImage: $(vmImageName)
+   strategy:
+     runOnce:
+       deploy:
+         steps:
+         - task: AzureFunctionApp@1
+           displayName: 'Azure Functions App Deploy: my-function-app-name'
+           inputs:
+             azureSubscription: '$(azureSubscription)'
+     # Set this to just 'functionApp' if your if app is windows based
+             appType: functionAppLinux 
+             appName: $(functionAppName)
+             package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
