@@ -1,0 +1,2 @@
+myNodeCICDApplication:
+  component: "@sls-node/serverless-component@latest"
