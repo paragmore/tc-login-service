@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "watchStart": "tsc -w & nodemon dist/server.js",
     "dev": "nodemon dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=5000",
+    "bump-version": "npm version patch"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "@types/inversify": "^2.0.33",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
+    "cross-env": "^7.0.3",
     "date-fns": "^2.30.0",
     "dotenv": "^16.0.3",
     "ejs": "^3.1.9",
@@ -31,10 +33,12 @@
     "gulp-typescript": "^6.0.0-alpha.1",
     "inversify": "^6.0.1",
     "jsonwebtoken": "^9.0.0",
+    "mocha": "^10.2.0",
     "mongoose": "^7.1.0",
     "mustache": "^4.2.0",
     "nodemon": "^2.0.22",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "supertest": "^6.3.3"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
@@ -44,6 +48,7 @@
     "@types/node": "^18.16.3",
     "gulp": "^4.0.2",
     "gulp-nodemon": "^2.5.0",
+    "jest": "^29.5.0",
     "typescript": "^5.0.4"
   },
   "engines": {
