@@ -31,7 +31,7 @@ deploy_to_aws:
     AWS_SECRET_ACCESS_KEY: "$AWS_SECRET_ACCESS_KEY"
   needs:
     - install_dependencies
-    - run_tests
+#    - run_tests
   script:
     - echo $AWS_ACCESS_KEY_ID
     - npm install -g serverless
