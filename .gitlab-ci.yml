@@ -1,4 +1,4 @@
-image: node:18.4.0-alpine
+image: public.ecr.aws/sam/build-nodejs18.x
 
 stages:
   - build
@@ -35,5 +35,5 @@ deploy_to_aws:
   script:
     - echo $AWS_ACCESS_KEY_ID
     - npm install -g serverless
-    - sls build
-    - sls deploy --no-confirm-changeset --no-fail-on-empty-changeset
+    - sam build
+    - sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
