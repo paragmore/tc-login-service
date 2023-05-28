@@ -138,7 +138,7 @@ export class AuthService {
       const accessToken = jwt.sign(
         { userId: user.id, userType },
         process.env.JWT_SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "72h" }
       );
       return { refreshToken, accessToken };
     }
