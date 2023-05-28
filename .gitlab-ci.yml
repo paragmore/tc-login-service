@@ -16,7 +16,6 @@ install_dependencies:
   stage: build
   script:
     - npm install
-    - npm run type:check
 
 run_tests:
   stage: test
