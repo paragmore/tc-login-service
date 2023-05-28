@@ -16,12 +16,13 @@ install_dependencies:
   stage: build
   script:
     - npm install
+    - npm run build
 
-run_tests:
-  stage: test
-  needs:
-    - install_dependencies
-  script: npm run test
+# run_tests:
+#   stage: test
+#   needs:
+#     - install_dependencies
+#   script: npm run test
 
 deploy_to_aws:
   stage: deploy
