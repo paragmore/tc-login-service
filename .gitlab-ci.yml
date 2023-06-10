@@ -1,5 +1,9 @@
 image: docker:19.03.8
 
+stages:
+  - docker
+  - deploy
+
 docker_production:
     stage: docker
     services:
@@ -13,7 +17,7 @@ docker_production:
         - master           
 
 deploy_production:
-    type: deploy
+    stage: deploy
     image: alpine
     environment: production
     script:
