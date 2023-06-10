@@ -1,5 +1,6 @@
-FROM node:12-alpine
+FROM node:14
 WORKDIR /usr/src/app
 COPY . .
 RUN npm install
-CMD [ "npm", "start"]
+RUN npm install typescript
+CMD [ "npm", "run", "start"]
