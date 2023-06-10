@@ -45,10 +45,12 @@ export class AuthRepo {
       });
       console.log(!businessAdmin);
       if (!businessAdmin) {
-        const newStore = await this.createNewStore()
+        const newStore = await this.createNewStore(phoneNumber);
         const businessAdminDocument = new BusinessAdminModel({
           phoneNumber: phoneNumber,
-          stores:[{storeId: newStore.id, role: BusinessAdminRolesEnum.ADMIN}]
+          stores: [
+            { storeId: newStore.id, role: BusinessAdminRolesEnum.ADMIN },
+          ],
         });
         return await businessAdminDocument.save();
       }
@@ -65,10 +67,10 @@ export class AuthRepo {
     }
   }
 
-  async createNewStore(){
-    const newStoreDocument = new StoreModel({})
-    const newStore = await newStoreDocument.save()
-    return newStore
+  async createNewStore(phoneNumber: string) {
+    const newStoreDocument = new StoreModel({ phoneNumber });
+    const newStore = await newStoreDocument.save();
+    return newStore;
   }
 
   async getOrCreateBusinessAdminByPhoneAndStoreId(
@@ -86,7 +88,6 @@ export class AuthRepo {
         // const businessAdminDocument = new BusinessAdminModel({
         //   phoneNumber: phoneNumber,
         // });
-
         // businessAdminDocument.stores.push({
         //   storeId: storeId,
         //   role: BusinessAdminRolesEnum.MANAGER,
