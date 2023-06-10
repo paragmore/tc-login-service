@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  login_api:
+    image: registry.gitlab.com/taxpayercorner-vs/microservices/login-service:production
+    ports:
+     - "3032:3032"
+    restart: always
+    environment:
+     - NODE_ENV=production

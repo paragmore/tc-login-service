@@ -1,86 +1,30 @@
-# Node.js Function App to Linux on Azurexxxx
-# Build a Node.js function app and deploy it to Azure as a Linux function app.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+image: docker:19.03.8
 
-# This defined the Git repository branch to execute the deployment logic on
-trigger:
-- deploy
+docker_production:
+    stage: docker
+    services:
+        - docker:19.03.8-dind
+    script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+        - docker pull $CI_REGISTRY_IMAGE:production || true
+        - docker build --tag $CI_REGISTRY_IMAGE:production .
+        - docker push $CI_REGISTRY_IMAGE:production
+    only:
+        - master           
 
-variables:
-
- # Azure Resource Manager connection created during pipeline creation
- # Thai can be retrieved from within the Azure Portal
- azureSubscription: '9d5c29bc-16d4-48a6-b2bc-cb360e4e3362'
-
- # Function app name. Set this to the name of your function app
- functionAppName: 'tpc-microservice'
-
- # Environment name
- environmentName: 'tpc-microservice'
-
- # Agent VM image name. Change this to 'windows-latest' if your function app is a windows based app service.
- vmImageName: 'ubuntu-latest'
-
-stages:
-- stage: Build
- displayName: Build stage
- jobs:
- - job: Build
-   displayName: Build
-   pool:
-     vmImage: $(vmImageName)
-
-   steps:
-   - task: NodeTool@0
-     inputs:
-       versionSpec: '18.x'
-     displayName: 'Install Node.js'
-
-   - script: |
-       if [ -f extensions.csproj ]
-       then
-           dotnet build extensions.csproj --runtime ubuntu.16.04-x64 --output ./bin
-       fi
-     displayName: 'Build extensions'
-
-   - script: |
-       npm install
-       npm run build --if-present
-       npm run test --if-present
-     displayName: 'Prepare binaries'
-
-   - task: ArchiveFiles@2
-     displayName: 'Archive files'
-     inputs:
-       rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-       includeRootFolder: false
-       archiveType: zip
-       archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-       replaceExistingArchive: true
-
-   - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-     artifact: drop
-
-- stage: Deploy
- displayName: Deploy stage
- dependsOn: Build
- condition: succeeded()
- jobs:
- - deployment: Deploy
-   displayName: Deploy
-   environment: $(environmentName)
-   pool:
-     vmImage: $(vmImageName)
-   strategy:
-     runOnce:
-       deploy:
-         steps:
-         - task: AzureFunctionApp@1
-           displayName: 'Azure Functions App Deploy: my-function-app-name'
-           inputs:
-             azureSubscription: '$(azureSubscription)'
-     # Set this to just 'functionApp' if your if app is windows based
-             appType: functionAppLinux 
-             appName: $(functionAppName)
-             package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+deploy_production:
+    type: deploy
+    image: alpine
+    environment: production
+    script:
+        - apk update
+        - apk add --update --no-cache openssh sshpass
+        - mkdir login-api
+        - chmod +x login-api
+        - mv docker-compose.yml login-api/docker-compose.yml
+        - echo $SERVER_SSH_KEY | base64 -d > my_ssh
+        - chmod 400 my_ssh
+        - sshpass scp -i my_ssh -o stricthostkeychecking=no -r login-api ubuntu@${SERVER_IP}:~/
+        - sshpass ssh -i my_ssh -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "cd ~/login-api;sudo docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY};sudo docker-compose down;sudo docker image rm ${CI_REGISTRY_IMAGE}:production;sudo docker-compose up -d;"
+    only:
+        - master
