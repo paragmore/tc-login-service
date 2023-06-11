@@ -4,6 +4,7 @@ ADD . /app
 COPY ./package.json ./
 RUN npm install
 RUN npm install -g typescript
+ENV PORT 8000
 RUN export PORT=8000
 RUN npm run build
 
