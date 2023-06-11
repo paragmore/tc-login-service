@@ -1,4 +1,4 @@
-version: '3.7'
+version: '2'
 
 services:
   login_api:
@@ -8,5 +8,4 @@ services:
     restart: always
     environment:
      - NODE_ENV=production
-    networks:
-      - default    
+     - PORT=8000   
