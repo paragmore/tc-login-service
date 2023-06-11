@@ -9,3 +9,5 @@ services:
     environment:
      - NODE_ENV=production
      - PORT=8001
+extra_hosts:
+    - "hostname:127.0.0.1"     
