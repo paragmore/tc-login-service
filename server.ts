@@ -13,8 +13,7 @@ import cookie from '@fastify/cookie'
 
 // Load environment variables from .env file
 config();
-const port = process.env.PORT || 3000;
-const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
+const PORT = process.env.PORT || 8000;
 const app: FastifyInstance = fastify({ logger: true, disableRequestLogging: true });
 
 
@@ -78,7 +77,7 @@ app.register(require('@fastify/swagger-ui'), {
   })
 app.register(Routes);
 connectMongoDB();
-fastify.listen({host: host, port: port }, (error, address) => {
+app.listen(PORT, '0.0.0.0' , (error, address) => {
   if (error) {
     app.log.error(error);
     process.exit(1);
