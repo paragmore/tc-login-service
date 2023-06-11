@@ -43,7 +43,9 @@ const swaggerConfig = () => {
       produces: ["application/json"],
     },
     exposeRoute: true,
-    host: "0.0.0.0",
+    env: {
+      HOST: process.env.HOST || "0.0.0.0",
+    }
   };
 };
 

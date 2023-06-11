@@ -14,7 +14,6 @@ gulp.task("serve", () => {
     watch:'./',
     env: {
       PORT: process.env.PORT || "8000",
-      HOST: process.env.HOST || "0.0.0.0"
     },
     ignore: ["./node_modules/**"],
   }).on("restart", () => {
