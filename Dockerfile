@@ -1,6 +1,7 @@
 FROM node:14.17
-WORKDIR /usr/src/app
+WORKDIR /app
 ADD . /app
+COPY ./package.json ./
 RUN npm install
 RUN npm install -g typescript
 RUN export port=8000
