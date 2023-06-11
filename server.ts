@@ -13,7 +13,8 @@ import cookie from '@fastify/cookie'
 
 // Load environment variables from .env file
 config();
-const PORT = parseInt(process.env.PORT || "8000");
+const port = process.env.PORT || 3000;
+const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
 const app: FastifyInstance = fastify({ logger: true, disableRequestLogging: true });
 
 
@@ -45,7 +46,7 @@ const swaggerConfig = () => {
       produces: ["application/json"],
     },
     exposeRoute: true,
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 8000,
     host: process.env.HOST || '0.0.0.0'
   };
 };
@@ -77,7 +78,7 @@ app.register(require('@fastify/swagger-ui'), {
   })
 app.register(Routes);
 connectMongoDB();
-app.listen(PORT, (error, address) => {
+fastify.listen({host: host, port: port }, (error, address) => {
   if (error) {
     app.log.error(error);
     process.exit(1);
