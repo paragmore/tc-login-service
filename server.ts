@@ -14,6 +14,7 @@ import cookie from '@fastify/cookie'
 // Load environment variables from .env file
 config();
 const PORT = parseInt(process.env.PORT || "8000");
+const HOST = parseInt(process.env.HOST || "0.0.0.0");
 const app: FastifyInstance = fastify({ logger: true, disableRequestLogging: true });
 
 
