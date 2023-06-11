@@ -29,6 +29,14 @@ const underPressureConfig = () => {
   };
 };
 
+declare var process : {
+  env: {
+    HOST: string
+  }
+};
+
+
+
 const swaggerConfig = () => {
   return {
     routePrefix: "/documentation",
@@ -43,7 +51,7 @@ const swaggerConfig = () => {
       produces: ["application/json"],
     },
     exposeRoute: true,
-    host: "0.0.0.0",
+    host: process.env.HOST || "0.0.0.0" 
   };
 };
 
