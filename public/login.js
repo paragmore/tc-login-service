@@ -18,7 +18,7 @@ form?.addEventListener("submit", async (event) => {
   const formData = new FormData(form);
   const phone = formData.get("phone");
   try {
-    const response = await fetch("http://0.0.0.0:8000/auth/generateOtp", {
+    const response = await fetch("http://localhost:8000/auth/generateOtp", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,7 +76,7 @@ form?.addEventListener("submit", async (event) => {
         const code = formData.get("otp-input");
         const phone = document.getElementById("phone").value;
         try {
-          const response = await fetch("http://0.0.0.0:8000/auth/verifyOtp", {
+          const response = await fetch("http://localhost:8000/auth/verifyOtp", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
