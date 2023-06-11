@@ -4,10 +4,8 @@ services:
   login_api:
     image: registry.gitlab.com/taxpayercorner-vs/microservices/login-service:production
     ports:
-     - "8000:8001"
+     - "8000:8000"
     restart: always
     environment:
      - NODE_ENV=production
-     - PORT=8001
-    extra_hosts:
-     - "hostname:127.0.0.1"     
+     - PORT=8000    
