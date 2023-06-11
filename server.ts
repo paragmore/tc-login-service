@@ -29,12 +29,6 @@ const underPressureConfig = () => {
   };
 };
 
-declare var process : {
-  env: {
-    HOST: string
-  }
-};
-
 
 
 const swaggerConfig = () => {
@@ -51,7 +45,8 @@ const swaggerConfig = () => {
       produces: ["application/json"],
     },
     exposeRoute: true,
-    host: process.env.HOST || "0.0.0.0" 
+    port: process.env.PORT || 3000,
+    host: process.env.HOST || '0.0.0.0'
   };
 };
 
