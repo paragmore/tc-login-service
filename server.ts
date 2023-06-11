@@ -43,7 +43,7 @@ const swaggerConfig = () => {
       produces: ["application/json"],
     },
     exposeRoute: true,
-    host: "localhost",
+    host: "0.0.0.0",
   };
 };
 
