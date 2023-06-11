@@ -8,4 +8,4 @@ RUN npm i --save-dev @types/node
 RUN npm run build
 ENV PORT=8000
 EXPOSE 8000
-CMD [ "npm", "start"]
+ENTRYPOINT [ "npm", "start"]
