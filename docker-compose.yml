@@ -8,7 +8,5 @@ services:
     restart: always
     environment:
      - NODE_ENV=production
-networks:
-  mynetwork:
-    external: true
-    name: host     
+    networks:
+      - default    
