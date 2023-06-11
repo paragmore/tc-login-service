@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FROM node:12-alpine
 
 RUN mkdir -p /usr/src/app
@@ -11,3 +12,12 @@ RUN npm run build
 
 EXPOSE 8000
 CMD [ "npm", "start"]
+=======
+FROM node:14
+WORKDIR /usr/src/app
+COPY . .
+COPY ./package.json ./
+RUN npm install 
+EXPOSE 8000
+CMD [ "npm", "run", "start"]
+>>>>>>> c98dff3bb3575fb76dd5a8b5cf981e470b833712
