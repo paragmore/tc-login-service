@@ -8,6 +8,7 @@ import ejs from "ejs";
 import mustache from "mustache";
 import path from "path";
 import jwt from "jsonwebtoken";
+import { environment } from "../utils/environment";
 
 @injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
     const rendered = mustache.render(stringRender, {
       storeId: storeId,
       userType: userType,
+      apiUrl: environment.apiUrl
     });
     return rendered;
   }

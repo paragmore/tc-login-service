@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>OTP Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="http://localhost:8000/public/login.minified.css">
+    <link rel="stylesheet" href="{{{apiUrl}}}/public/login.minified.css">
 </head>
 
 <body>
@@ -45,10 +45,10 @@
 
 
     <script>
-        console.log("hello from server");
+        console.log("hello from server, {{{apiUrl}}}/auth/generateOtp");
 
         async function generateOtp(phone) {
-            const response = await fetch("http://localhost:8000/auth/generateOtp", {
+            const response = await fetch("{{{apiUrl}}}/auth/generateOtp", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -63,7 +63,7 @@
         }
 
         async function verifyOtp(code, phone) {
-            const response = await fetch("http://localhost:8000/auth/verifyOtp", {
+            const response = await fetch("{{{apiUrl}}}/auth/verifyOtp", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
