@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { addressesSchema } from "./address.model";
 
 const customerSchema = new Schema(
   {
@@ -6,25 +7,46 @@ const customerSchema = new Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+    },
     name: {
       type: String,
     },
-    address: {
-      type: {
-        street: String,
-        city: String,
-        state: String,
-        zip: String,
-      },
+    gstin: {
+      type: String,
     },
-    storeId: {
-      type: Schema.Types.ObjectId,
-      ref: "Store",
-      required: true,
-    },
+    addresses: [addressesSchema],
     photoUrl: {
       type: String,
     },
+    lastLogin: {
+      type: Date,
+    },
+    searchQueries: [
+      {
+        searchTerm: {
+          type: String,
+          required: true,
+        },
+        storeId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Store",
+        },
+      },
+    ],
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
+    favouriteProducts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
   },
   { timestamps: true }
 );
