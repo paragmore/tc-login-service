@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
 import { ConnectionOptions } from "tls";
-import { isProd } from "./utils/environment";
+import { environment, isProd } from "./utils/environment";
 
 export const connectMongoDB = () => {
-  console.log("hereee");
-  const uri = isProd ? process.env.MONGODB_URI : process.env.MONGODB_LOCAL_URI;
+  const uri = isProd ? process.env.MONGODB_URI : process.env.MONGODB_URI;
   if (!uri) {
     console.log("MONGODB_URI not present");
     return;
@@ -13,7 +12,10 @@ export const connectMongoDB = () => {
     .connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      dbName:environment.dbName
     } as ConnectionOptions)
-    .then(() => console.log("MongoDB connected"))
+    .then(() => {
+      console.log("MongoDB connected", mongoose.connection.host);
+    })
     .catch((err) => console.error(err));
 };
